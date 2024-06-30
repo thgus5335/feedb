@@ -21,11 +21,11 @@ function Project({ params }: Props) {
         <ProjectArticle projectId={params.projectId} />
         <TeamMemberSection projectId={params.projectId} />
         <StackSection projectId={params.projectId} />
-        <RatingSection />
+        <RatingSection projectId={params.projectId} />
       </div>
       <div>
-        <MyCommentSection />
-        <CommentListSection />
+        <MyCommentSection projectId={params.projectId} />
+        <CommentListSection projectId={params.projectId} />
       </div>
     </main>
   );

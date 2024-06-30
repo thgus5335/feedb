@@ -34,6 +34,7 @@ export interface CommentDetailResponse {
 export interface ReflyCommentResponse {
   content: [
     {
+      replyId: number;
       userId: number;
       job: string;
       author: string;
@@ -48,5 +49,18 @@ export interface ReflyCommentResponse {
     totalElements: number;
     page: number;
     size: number;
+  };
+}
+
+export interface MyCommentResponse {
+  exists: boolean;
+  projectCommentResponseDto?: {
+    commentId: number;
+    authorId: number;
+    authorName: string;
+    job: string;
+    comment: string;
+    averageStarRank: number;
+    childCommentCount: number;
   };
 }

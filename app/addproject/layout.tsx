@@ -1,3 +1,4 @@
+import Providers from "@/app/_queryFactory/providers";
 import Header from "@/app/_components/Header/Header";
 import type { Metadata } from "next";
 import "@/app/_styles/globals.css";
@@ -7,15 +8,15 @@ export const metadata: Metadata = {
   description: "FeedB에서 프로젝트를 공유해보세요.",
 };
 
-export default function addProjectLayout({
+export default function AddProjectLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <Providers>
       <Header />
       {children}
-    </>
+    </Providers>
   );
 }

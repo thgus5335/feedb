@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import uploadIcon from "@/public/icons/upload.svg";
+import uploadIcon from "@/public/icons/blackUpload.svg";
 import useModal from "@/app/_hooks/useModal";
-import { useKakaoStore } from "@/app/_utils/zustandStore";
-import { getToken, removeToken } from "@/app/_utils/handleToken";
+import useCheckLogin from "@/app/_hooks/useCheckLogin";
 import feedbee from "@/public/icons/feedbee.svg";
 import logoTextIcon from "@/public/icons/logoText.svg";
 import LoginButton from "../LoginButton/LoginButton";
@@ -17,21 +16,7 @@ import HeaderDropDownBox from "./HeaderDropDownBox";
 function Header() {
   const { openModal: isSignUpModal, handleModalClose: signUpModalClose, handleModalOpen: signUpModalOpen } = useModal();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const { type, setType } = useKakaoStore();
-
-  const handleLogout = () => {
-    removeToken();
-    setIsAuthenticated(false);
-  };
-
-  useEffect(() => {
-    const token = getToken();
-    if (token && token.accessToken) {
-      setIsAuthenticated(true);
-    }
-  }, []);
+  const { type, setType, isLoggedIn, handleLogout } = useCheckLogin();
 
   useEffect(() => {
     if (type === "signUp") {
@@ -41,14 +26,14 @@ function Header() {
   }, [type, signUpModalOpen, setType]);
 
   return (
-    <header className="h-16 w-full border-b border-solid border-gray-300 py-2 text-white">
+    <header className="sticky right-0 top-0 z-20 h-16 w-full border-b border-solid border-gray-300 bg-white py-2 text-white">
       <div className="relative m-0 mx-auto flex h-11 max-w-[1400px] items-center justify-between">
         <Link href="/main" className="flex items-center gap-2.5">
-          <Image src={feedbee} width={33} height={32} alt="로고 아이콘" />
-          <Image src={logoTextIcon} alt="로고 텍스트" />
+          <Image src={feedbee} width={33} height={32} alt="로고 아이콘" priority />
+          <Image src={logoTextIcon} alt="로고 텍스트" priority />
         </Link>
         <div className="flex h-full items-center gap-4">
-          {isAuthenticated ? (
+          {isLoggedIn ? (
             <>
               <Link href="/addproject">
                 <Button buttonSize="normal" bgColor="yellow" className="flex items-center justify-center gap-1">

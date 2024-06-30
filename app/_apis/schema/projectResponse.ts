@@ -60,6 +60,7 @@ export interface ProjectResponse {
     },
   ];
   isMine: boolean;
+  isLiked: false;
 }
 
 export interface TeamMemberResponse extends Array<TeamMember> {}
@@ -74,4 +75,21 @@ export interface TeamMember {
       url: string;
     },
   ];
+}
+
+export interface RatingsResponse {
+  averageRank: number;
+  ideaRank: number;
+  designRank: number;
+  functionRank: number;
+  completionRank: number;
+}
+
+export interface TotalRatingResponse {
+  averageRank: number;
+  ideaRank: number;
+  designRank: number;
+  functionRank: number;
+  completionRank: number;
+  rankCount: number;
 }

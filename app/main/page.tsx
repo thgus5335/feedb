@@ -1,19 +1,18 @@
 import React from "react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import getQueryClient from "../_queryFactory/getQueryClient";
-import { projectApi } from "../_apis/project";
+import { projectQueryKeys } from "../_queryFactory/projectQuery";
 import SelectStack from "./_components/SelectStack/SelectStack";
 
 async function MainPage() {
   const queryClient = getQueryClient();
 
+  const projectListQuery = projectQueryKeys.list({ page: 1, size: 12 });
+
   await queryClient.prefetchInfiniteQuery({
-    queryKey: ["project", "list", "projectList"],
-    queryFn: async () => {
-      const response = projectApi.getprojectList({ page: 1, size: 12 });
-      return response;
-    },
-    initialPageParam: 1,
+    queryKey: projectListQuery.queryKey,
+    queryFn: projectListQuery.queryFn,
+    initialPageParam: 1 as never,
     getNextPageParam: (lastPage: any) => {
       const { customPageable } = lastPage;
       if (customPageable.hasNext) {
@@ -27,7 +26,7 @@ async function MainPage() {
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <main className="mx-auto mt-[100px] grid w-[1200px] grid-cols-[230px_minmax(976px,_1fr)] grid-rows-[100px_minmax(800px,_1fr)]">
+      <main className="mx-auto my-16 grid w-[1200px] grid-cols-[230px_minmax(976px,_1fr)] grid-rows-[100px_minmax(800px,_1fr)]">
         <SelectStack />
       </main>
     </HydrationBoundary>

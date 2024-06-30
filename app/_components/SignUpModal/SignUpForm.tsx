@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { SignUpRequest } from "@/app/_apis/schema/user";
 import useToggleHook from "@/app/_hooks/useToggleHook";
 import { signUpApi } from "@/app/_apis/signUp";
-import { useKakaoStore } from "@/app/_utils/zustandStore";
+import { useLogin } from "@/app/_context/LoginProvider";
 import { setToken } from "@/app/_utils/handleToken";
 import Input from "../Input/Input";
 import Button from "../Button/Button";
@@ -13,6 +13,7 @@ interface SignUpFormProps {
   item: string;
   dataType: string;
   setItem: React.Dispatch<React.SetStateAction<string>>;
+  handleModalClose: () => void;
 }
 
 interface SignUpFormData {
@@ -27,10 +28,10 @@ const CONSTANTS = {
   INTRODUCTION_MAX_LENGTH: 150,
 };
 
-function SignUpForm({ item, dataType, setItem }: SignUpFormProps) {
+function SignUpForm({ item, dataType, setItem, handleModalClose }: SignUpFormProps) {
   const { isOpen, toggleState } = useToggleHook();
 
-  const { email } = useKakaoStore();
+  const { email } = useLogin();
 
   const mutation = useMutation({
     mutationFn: (userData: SignUpRequest) => {
@@ -38,9 +39,10 @@ function SignUpForm({ item, dataType, setItem }: SignUpFormProps) {
       return response;
     },
     onSuccess: data => {
-      console.log("Sign up Successful", data);
+      console.log("Sign up Successful");
       const accessToken = data.token;
       setToken(accessToken);
+      window.location.reload(); // 회원가입 후 새로고침
     },
     onError: error => {
       console.error("Sign up failed", error);
@@ -67,7 +69,7 @@ function SignUpForm({ item, dataType, setItem }: SignUpFormProps) {
       console.error("Error occured during mutation", error);
     }
 
-    console.log(requestData);
+    handleModalClose();
   };
 
   const handleItemClick = (value: string) => {

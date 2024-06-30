@@ -5,7 +5,7 @@ import React, { useRef, useState } from "react";
 import smallArrowIcon from "@/public/icons/smallArrow.svg";
 import smallTopArrowIcon from "@/public/icons/smallTopArrow.svg";
 import useToggleHook from "@/app/_hooks/useToggleHook";
-import { JOB_CATEGORIES } from "@/app/_constants/JobCategoryData";
+import { JOB_CATEGORIES_KR } from "@/app/_constants/JobCategoryData";
 import useOutsideClick from "@/app/_hooks/useOutsideClick";
 import DropDown from "@/app/_components/DropDown/DropDown";
 import { TOOL_DATA } from "@/app/_constants/ToolData";
@@ -13,9 +13,11 @@ import DropDownList from "./DropDownList";
 
 interface DropDownProps {
   dataType: string;
+  inputWidth?: string;
+  handleInputChange?: (value: string) => void;
 }
 
-function DropDownBox({ dataType }: DropDownProps) {
+function DropDownBox({ dataType, inputWidth, handleInputChange }: DropDownProps) {
   const toolData = TOOL_DATA.reduce(
     (acc, { name }) => {
       acc[name] = name;
@@ -25,7 +27,7 @@ function DropDownBox({ dataType }: DropDownProps) {
   );
 
   const dataMap: Record<string, Record<string, string>> = {
-    job: JOB_CATEGORIES,
+    job: JOB_CATEGORIES_KR,
     tool: toolData,
   };
 
@@ -41,16 +43,16 @@ function DropDownBox({ dataType }: DropDownProps) {
   useOutsideClick(itemRef, toggleState, exceptionRef);
 
   const handleItemClick = (value: string) => {
+    const englishValue = Object.keys(JOB_CATEGORIES_KR).find(key => JOB_CATEGORIES_KR[key] === value) || "";
     setItem(value);
+    handleInputChange && handleInputChange(dataType === "job" ? englishValue : value);
     toggleState();
   };
 
   return (
     <div className="relative">
       <div
-        className={
-          "flex h-11 w-[118px] items-center justify-between gap-2 rounded-lg border border-solid border-gray-200 p-2 text-sm font-normal text-gray-900"
-        }>
+        className={`flex h-11 ${inputWidth ? inputWidth : "w-[118px]"} items-center justify-between gap-2 rounded-lg border border-solid border-gray-200 p-2 text-sm font-normal text-gray-900`}>
         {item}
         <div className="h-5 w-5 cursor-pointer" onClick={toggleState} ref={exceptionRef}>
           {isOpen ? (
@@ -61,7 +63,7 @@ function DropDownBox({ dataType }: DropDownProps) {
         </div>
       </div>
       {isOpen && (
-        <DropDown className="absolute w-auto" itemRef={itemRef}>
+        <DropDown className={`absolute ${inputWidth ? inputWidth : "w-[118px]"}`} itemRef={itemRef}>
           <DropDownList data={data} handleItemClick={handleItemClick} />
         </DropDown>
       )}

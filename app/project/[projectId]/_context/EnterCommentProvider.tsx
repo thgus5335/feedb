@@ -1,23 +1,27 @@
-import React, { ReactNode, useCallback, useContext, useState } from "react";
+import React, { Dispatch, ReactNode, SetStateAction, useCallback, useContext, useState } from "react";
 import { createContext } from "react";
 
 interface EnterCommentContextType {
   rating: number[];
+  setRating: Dispatch<SetStateAction<number[]>>;
   isDragging: boolean;
   handleMouseDown: (categoryId: number, rating: number) => void;
   handleMouseMove: (categoryId: number, rating: number) => void;
   handleMouseUp: () => void;
   comment: string;
+  setComment: Dispatch<SetStateAction<string>>;
   handleCommentChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 const EnterCommentContext = createContext<EnterCommentContextType>({
   rating: [],
+  setRating: () => {},
   isDragging: false,
   handleMouseDown: () => {},
   handleMouseMove: () => {},
   handleMouseUp: () => {},
   comment: "",
+  setComment: () => {},
   handleCommentChange: () => {},
 });
 
@@ -65,11 +69,13 @@ function EnterCommentProvider({ children }: { children: ReactNode }) {
     <EnterCommentContext.Provider
       value={{
         rating,
+        setRating,
         isDragging,
         handleMouseDown,
         handleMouseMove,
         handleMouseUp,
         comment,
+        setComment,
         handleCommentChange,
       }}>
       {children}

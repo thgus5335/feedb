@@ -1,15 +1,14 @@
 "use client";
 import { FormEvent, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/app/_components/Button/Button";
 import Modal from "@/app/_components/Modal/Modal";
 import ProfileImage from "@/app/_components/ProfileImage/ProfileImage";
 import Input from "@/app/_components/Input/Input";
 import DropDownBox from "@/app/addproject/_components/DropDown/DropDownBox";
-import useHandleInputFile from "@/app/_hooks/useFileInput";
+import useFileInput from "@/app/_hooks/useFileInput";
 import useTextInput from "@/app/_hooks/useTextInput";
-import { PutUserDataType, profileAPI, UserDataType } from "@/app/_apis/ProfileAPI";
-import getQueryClient from "@/app/_queryFactory/getQueryClient";
+import { PutUserDataType, profileAPI, UserDataType, JobType } from "@/app/_apis/ProfileAPI";
 import { MY_PAGE_TEXT } from "../constant";
 import DeleteImageButton from "./DeleteImageButton";
 import { isChangeAboutMe, isImageChange, isValidNickName } from "./profileValidation";
@@ -21,7 +20,7 @@ interface EditProfileModalProps {
 }
 
 function EditProfileModal({ openModal, handleModalClose, profileData }: EditProfileModalProps) {
-  const queryClient = getQueryClient();
+  const queryClient = useQueryClient();
 
   const {
     inputRef: profileImageInputRef,
@@ -31,9 +30,10 @@ function EditProfileModal({ openModal, handleModalClose, profileData }: EditProf
     handleSelectImageClick,
     handleSetImage,
     imageFile,
-  } = useHandleInputFile();
+  } = useFileInput();
   const nickNameValue = useTextInput();
   const aboutMeValue = useTextInput();
+  const { value: jobValue, handleSetValue } = useTextInput();
 
   const changeProfileMutation = useMutation({
     mutationFn: (newProfileData: PutUserDataType) => {
@@ -54,12 +54,12 @@ function EditProfileModal({ openModal, handleModalClose, profileData }: EditProf
       image: isImageChange(profileData?.imageUrl, image) === 2 ? imageFile : null,
       imageIdx: isImageChange(profileData.imageUrl, image),
       memberEditRequestDto: {
-        id: profileData?.id,
+        id: profileData.id,
         nickName: isValidNickName(profileData.nickName, nickNameValue.value)
           ? nickNameValue.value
-          : profileData?.nickName,
+          : profileData.nickName,
         aboutMe: isChangeAboutMe(profileData.aboutMe, aboutMeValue.value) ? aboutMeValue.value : profileData?.aboutMe,
-        job: "FRONTEND",
+        job: jobValue === "" ? profileData.job : (jobValue as JobType),
       },
     };
 
@@ -71,8 +71,13 @@ function EditProfileModal({ openModal, handleModalClose, profileData }: EditProf
       handleSetImage(profileData.imageUrl);
     }
     if (profileData?.nickName) {
-      nickNameValue.handleSetValue(profileData?.nickName);
+      nickNameValue.handleSetValue(profileData.nickName);
     }
+    if (profileData.aboutMe) {
+      aboutMeValue.handleSetValue(profileData.aboutMe);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -105,7 +110,7 @@ function EditProfileModal({ openModal, handleModalClose, profileData }: EditProf
                 title="닉네임"
               />
               <p className="text-base font-bold text-gray-900">{MY_PAGE_TEXT.JOB}</p>
-              <DropDownBox dataType="job" />
+              <DropDownBox dataType="job" handleInputChange={handleSetValue} inputWidth={"w-full"} />
               <label htmlFor="introduction" className="text-base font-bold text-gray-900">
                 {MY_PAGE_TEXT.INTRODUCTION}
               </label>
@@ -113,7 +118,7 @@ function EditProfileModal({ openModal, handleModalClose, profileData }: EditProf
                 value={aboutMeValue.value}
                 onChange={aboutMeValue.handleChangeValue}
                 id="introduction"
-                className="h-[140px] w-[384px] resize-none rounded-lg border border-gray-200 px-2 py-3 text-gray-500 placeholder:text-sm"
+                className="h-[140px] w-[384px] resize-none rounded-lg border border-gray-200 px-2 py-3 text-sm text-gray-800 placeholder:text-sm"
                 placeholder={"자신을 표현할 간단한 소개를 적어주세요(최대 150자)"}
               />
             </div>
