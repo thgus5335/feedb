@@ -2,14 +2,13 @@ import React from "react";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import ScrollToTopButton from "@/app/_components/Button/DirectionButton";
 import { commentQueryKeys } from "@/app/_queryFactory/commentQuery";
-import { commentApi } from "@/app/_apis/comment";
 import CommentInput from "./_components/CommentInput";
 import ReflyCommentList from "./_components/ReflyCommentList";
 import CommentSection from "./_components/CommentSection";
 
 interface Props {
   params: {
-    commentId: number;
+    ratingId: number;
     projectId: number;
   };
 }
@@ -17,19 +16,18 @@ interface Props {
 async function CommentPage({ params }: Props) {
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery(commentQueryKeys.detail(params.projectId, params.commentId));
+  const reflyCommentListQuery = commentQueryKeys.reflyList({
+    projectId: params.projectId,
+    ratingId: params.ratingId,
+    page: 1,
+    size: 10,
+  });
+
+  await queryClient.prefetchQuery(commentQueryKeys.detail(params.ratingId));
   await queryClient.prefetchInfiniteQuery({
-    queryKey: ["comment", "reflyList", "reflyCommentList"],
-    queryFn: async () => {
-      const response = await commentApi.getReflyCommentList({
-        projectId: params.projectId,
-        commentId: params.commentId,
-        page: 1,
-        size: 10,
-      });
-      return response;
-    },
-    initialPageParam: 1,
+    queryKey: reflyCommentListQuery.queryKey,
+    queryFn: reflyCommentListQuery.queryFn,
+    initialPageParam: 1 as never,
     getNextPageParam: (lastPage: any) => {
       const { customPageable } = lastPage;
       if (customPageable.hasNext) {
@@ -45,11 +43,11 @@ async function CommentPage({ params }: Props) {
     <HydrationBoundary state={dehydratedState}>
       <div className="mx-auto w-[1200px]">
         <ScrollToTopButton className="fixed bottom-10 right-10" direction="top" />
-        <CommentSection projectId={params.projectId} commentId={params.commentId} />
+        <CommentSection projectId={params.projectId} ratingId={params.ratingId} />
         <section className="mt-12">
-          <CommentInput projectId={params.projectId} commentId={params.commentId} />
+          <CommentInput ratingId={params.ratingId} />
         </section>
-        <ReflyCommentList projectId={params.projectId} commentId={params.commentId} />
+        <ReflyCommentList ratingId={params.ratingId} />
       </div>
     </HydrationBoundary>
   );

@@ -8,7 +8,7 @@ interface CommentListParams {
 }
 
 interface ReflyCommentListParams extends CommentListParams {
-  commentId: number;
+  ratingId: number;
 }
 
 export const commentQueryKeys = createQueryKeys("comment", {
@@ -16,12 +16,12 @@ export const commentQueryKeys = createQueryKeys("comment", {
     queryKey: ["commentList", props.page],
     queryFn: async () => await commentApi.getCommentList({ ...props }),
   }),
-  detail: (projectId: number, commentId: number) => ({
-    queryKey: ["commentData", commentId],
-    queryFn: async () => await commentApi.getCommentDetail(projectId, commentId),
+  detail: (ratingId: number) => ({
+    queryKey: ["commentData", ratingId],
+    queryFn: async () => await commentApi.getCommentDetail(ratingId),
   }),
   reflyList: (props: ReflyCommentListParams) => ({
-    queryKey: ["reflyCommentList", props.page],
+    queryKey: ["reflyCommentList"],
     queryFn: async () => await commentApi.getReflyCommentList({ ...props }),
   }),
   myComment: (projectId: number) => ({

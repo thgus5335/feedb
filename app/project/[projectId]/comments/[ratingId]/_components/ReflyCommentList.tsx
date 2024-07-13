@@ -7,17 +7,15 @@ import { commentApi } from "@/app/_apis/comment";
 import ReflyCommentItem from "./ReflyCommentItem";
 
 interface ReflyCommentListProps {
-  projectId: number;
-  commentId: number;
+  ratingId: number;
 }
 
-function ReflyCommentList({ projectId, commentId }: ReflyCommentListProps) {
+function ReflyCommentList({ ratingId }: ReflyCommentListProps) {
   const { targetRef: lastCardInfo, isVisible } = useIntersectionObserver<HTMLDivElement>({ threshold: 1 });
 
   const { data: reflyPage, fetchNextPage } = useInfiniteQuery({
     queryKey: ["comment", "reflyList", "reflyCommentList"],
-    queryFn: ({ pageParam = 1 }) =>
-      commentApi.getReflyCommentList({ projectId, commentId, page: pageParam as number, size: 10 }),
+    queryFn: ({ pageParam = 1 }) => commentApi.getReflyCommentList({ ratingId, page: pageParam as number, size: 10 }),
     initialPageParam: 1,
     getNextPageParam: lastPage => {
       const { customPageable } = lastPage;
@@ -39,7 +37,7 @@ function ReflyCommentList({ projectId, commentId }: ReflyCommentListProps) {
     <section className="relative mb-12 mt-6">
       <h3 className="mb-4">댓글 ({reflyPage?.pages[0].customPageable.totalElements})</h3>
       {reflyPage?.pages.map(reflyList =>
-        reflyList.content.map(refly => <ReflyCommentItem key={refly.replyId} replyComment={refly} />)
+        reflyList.content.map(refly => <ReflyCommentItem key={refly.commentId} replyComment={refly} />)
       )}
       <div className="absolute bottom-0" ref={lastCardInfo} />
     </section>

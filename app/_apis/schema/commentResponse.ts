@@ -22,23 +22,30 @@ export interface CommentsListResponse {
 }
 
 export interface CommentDetailResponse {
-  commentId: number;
   authorId: number;
   authorName: string;
   job: string;
   comment: string;
   averageStarRank: number;
   childCommentCount: number;
+  ratingId: number;
+  averageRank: number;
+  ideaRank: number;
+  designRank: number;
+  functionRank: number;
+  completionRank: number;
+  authorProfileImageUrl: string;
 }
 
 export interface ReflyCommentResponse {
   content: [
     {
-      replyId: number;
-      userId: number;
+      commentId: number;
+      authorId: number;
       job: string;
-      author: string;
+      authorName: string;
       comment: string;
+      authorProfileImageUrl: string;
     },
   ];
   customPageable: {

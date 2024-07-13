@@ -8,25 +8,22 @@ import {
 } from "./schema/commentResponse";
 
 interface CommentsListRequest {
-  projectId: number;
+  projectId?: number;
   page?: number;
   size?: number;
 }
 
 interface UpadateCommentRequest {
+  projectRatingId: number;
+  ideaRank: number;
+  designRank: number;
+  functionRank: number;
+  completionRank: number;
   comment: string;
-  projectRatingUpdateRequest: {
-    projectRatingId: number;
-    ideaRank: number;
-    designRank: number;
-    functionRank: number;
-    completionRank: number;
-    commentUpdateRequest: string;
-  };
 }
 
 interface ReflyCommentListRequest extends CommentsListRequest {
-  commentId: number;
+  ratingId: number;
 }
 
 export const commentApi = {
@@ -37,12 +34,12 @@ export const commentApi = {
       HEADER.headers
     );
   },
-  getCommentDetail: async (projectId: number, commentId: number) => {
-    return await httpClient().get<CommentDetailResponse>(`/projects/${projectId}/comments/${commentId}`);
+  getCommentDetail: async (ratingId: number) => {
+    return await httpClient().get<CommentDetailResponse>(`/projects/ratings/${ratingId}`);
   },
-  getReflyCommentList: async ({ projectId, commentId, page = 1, size = 10 }: ReflyCommentListRequest) => {
+  getReflyCommentList: async ({ ratingId, page = 1, size = 10 }: ReflyCommentListRequest) => {
     return await httpClient().get<ReflyCommentResponse>(
-      `/projects/${projectId}/comments/${commentId}/replies`,
+      `/projects/${ratingId}/comments`,
       {
         page,
         size,
@@ -66,11 +63,11 @@ export const commentApi = {
       HEADER.applicationHeaders
     );
   },
-  postReflyComment: async (projectId: number, commentId: number, comment: string) => {
+  postReflyComment: async (ratingId: number, comment: string) => {
     return await httpClient().post(
-      `/projects/${projectId}/comments/replies`,
+      `/projects/${ratingId}/comments`,
       {
-        parentId: commentId,
+        parentId: ratingId,
         comment: comment,
       },
       HEADER.applicationHeaders
@@ -81,8 +78,8 @@ export const commentApi = {
       data,
     });
   },
-  deleteComment: async (commentId: number) => {
-    return await httpClient().delete(`/projects/comments/${commentId}`, HEADER.applicationHeaders);
+  deleteComment: async (ratingId: number) => {
+    return await httpClient().delete(`/projects/comments/${ratingId}`, HEADER.applicationHeaders);
   },
   deleteReflyComment: async (reflyId: number) => {
     return await httpClient().delete(`/projects/comments/replies/${reflyId}`, HEADER.applicationHeaders);
