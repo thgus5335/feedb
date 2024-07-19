@@ -34,3 +34,17 @@
     animation-play-state: paused;
   }
 }
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Tailwind CSS 클래스를 이용한 적용 */
+.zoom-in-animation {
+  animation: zoomIn 0.6s ease-out forwards;
+}

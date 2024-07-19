@@ -22,7 +22,6 @@ interface UploadCommentRequest {
 }
 
 interface UpadateCommentRequest {
-  projectRatingId: number;
   ideaRank: number;
   designRank: number;
   functionRank: number;
@@ -68,25 +67,38 @@ export const commentApi = {
       HEADER.applicationHeaders
     );
   },
-  postReflyComment: async (ratingId: number, comment: string) => {
+  postReflyComment: async (ratingId: number | undefined, comment: string) => {
     return await httpClient().post(
       `/projects/${ratingId}/comments`,
       {
-        parentId: ratingId,
+        parentId: 0,
         comment: comment,
       },
       HEADER.applicationHeaders
     );
   },
-  putComment: async (commentId: number, data: UpadateCommentRequest) => {
-    return await httpClient().put(`/projects/${commentId}`, {
-      data,
-    });
+  putComment: async (ratingId: number, data: UpadateCommentRequest) => {
+    return await httpClient().put(
+      `/projects/ratings/${ratingId}`,
+      {
+        ...data,
+      },
+      HEADER.applicationHeaders
+    );
+  },
+  putReflyComment: async (commentId: number | undefined, comment: string) => {
+    return await httpClient().put(
+      `/projects/comments/${commentId}`,
+      {
+        comment: comment,
+      },
+      HEADER.applicationHeaders
+    );
   },
   deleteComment: async (ratingId: number) => {
-    return await httpClient().delete(`/projects/comments/${ratingId}`, HEADER.applicationHeaders);
+    return await httpClient().delete(`/projects/ratings/${ratingId}`, HEADER.applicationHeaders);
   },
   deleteReflyComment: async (reflyId: number) => {
-    return await httpClient().delete(`/projects/comments/replies/${reflyId}`, HEADER.applicationHeaders);
+    return await httpClient().delete(`/projects/comments/${reflyId}`, HEADER.applicationHeaders);
   },
 };

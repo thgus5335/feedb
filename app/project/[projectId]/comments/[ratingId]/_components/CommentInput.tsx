@@ -1,20 +1,33 @@
 "use client";
 
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/app/_components/Button/Button";
 import { REFLY_COMMENT_LENGTH } from "@/app/_constants/MaxTextLength";
 import { commentApi } from "@/app/_apis/comment";
+import { useToast } from "@/app/_context/ToastContext";
 
 interface CommentInputProps {
-  ratingId: number;
+  ratingId?: number;
+  commentId?: number;
+  type: "post" | "put";
+  toggleState?: () => void;
+  commentValue?: string;
 }
 
-function CommentInput({ ratingId }: CommentInputProps) {
+function CommentInput({ ratingId, commentId, type, toggleState, commentValue }: CommentInputProps) {
   const queryClient = useQueryClient();
   const [textValue, setTextValue] = useState("");
 
-  const mutation = useMutation({
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    if (commentValue) {
+      setTextValue(commentValue);
+    }
+  }, [commentValue]);
+
+  const postReflyCommentmutation = useMutation({
     mutationFn: (comment: string) => {
       return commentApi.postReflyComment(ratingId, comment);
     },
@@ -23,6 +36,28 @@ function CommentInput({ ratingId }: CommentInputProps) {
         queryKey: ["comment", "reflyList", "reflyCommentList"],
       });
       setTextValue("");
+      addToast("댓글이 생성되었습니다", "success");
+    },
+    onError: error => {
+      console.error("Error:", error);
+      addToast("댓글이 생성 오류가 발생했습니다", "error");
+    },
+  });
+
+  const putReflyCommentmutation = useMutation({
+    mutationFn: (comment: string) => {
+      return commentApi.putReflyComment(commentId, comment);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comment", "reflyList", "reflyCommentList"],
+      });
+      setTextValue("");
+      addToast("댓글이 수정되었습니다", "success");
+    },
+    onError: error => {
+      console.error("Error:", error);
+      addToast("댓글이 수정 오류가 발생했습니다", "error");
     },
   });
 
@@ -32,10 +67,17 @@ function CommentInput({ ratingId }: CommentInputProps) {
 
   const handelSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const comment = formData.get("comment");
-    if (comment) {
-      mutation.mutate(comment.toString());
+    if (type === "post") {
+      postReflyCommentmutation.mutate(textValue);
+    } else if (type === "put" && toggleState) {
+      putReflyCommentmutation.mutate(textValue);
+      toggleState();
+    }
+  };
+
+  const handelToggle = () => {
+    if (toggleState) {
+      toggleState();
     }
   };
 
@@ -50,10 +92,19 @@ function CommentInput({ ratingId }: CommentInputProps) {
         onChange={onChange}
       />
       <div className="flex flex-col justify-between">
-        <p className="text-end text-sm text-gray-500">0/{REFLY_COMMENT_LENGTH}</p>
-        <Button bgColor="yellow" buttonSize="small" type="submit">
-          등록
-        </Button>
+        <p className="text-end text-sm text-gray-500">
+          {textValue.length}/{REFLY_COMMENT_LENGTH}
+        </p>
+        <div className="flex gap-3">
+          {type === "put" && (
+            <Button bgColor="gray" buttonSize="small" type="button" onClick={handelToggle}>
+              취소
+            </Button>
+          )}
+          <Button bgColor="yellow" buttonSize="small" type="submit">
+            {type === "post" ? "등록" : "수정"}
+          </Button>
+        </div>
       </div>
     </form>
   );

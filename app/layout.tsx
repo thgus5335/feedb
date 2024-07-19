@@ -1,6 +1,10 @@
+import Script from "next/script";
+import Header from "./_components/Header/Header";
 import LoadingWrapper from "./_components/LoadingWrapper/LoadingWrapper";
+import ToastContainer from "./_components/Toast/ToastContainer";
 import Providers from "./_queryFactory/providers";
 import { LoginProvider } from "./_context/LoginProvider";
+import { ToastProvider } from "./_context/ToastContext";
 import type { Metadata } from "next";
 import "./_styles/globals.css";
 
@@ -26,12 +30,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <Script src="https://developers.kakao.com/sdk/js/kakao.js" strategy="beforeInteractive" />
+      </head>
       <body>
-        <LoginProvider>
-          <Providers>
-            <LoadingWrapper>{children}</LoadingWrapper>
-          </Providers>
-        </LoginProvider>
+        <div id="modal" />
+        <Providers>
+          <LoginProvider>
+            <ToastProvider>
+              <Header />
+              <LoadingWrapper>
+                {children}
+                <ToastContainer />
+              </LoadingWrapper>
+            </ToastProvider>
+          </LoginProvider>
+        </Providers>
       </body>
     </html>
   );

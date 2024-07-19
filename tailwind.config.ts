@@ -8,13 +8,42 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      scrollbar: {
+        hide: {
+          "scrollbar-width": "none",
+          /* Internet Explorer 10+ */
+          "-ms-overflow-style": "none",
+          /* WebKit 기반 브라우저들 (Chrome, Safari, Edge) */
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        },
+      },
       animation: {
         "loop-scroll": "loop-scroll 35s linear infinite",
+        positionUp: "positionUp 2s ease-in-out infinite",
+        "dropdown-grow": "dropdown-grow 0.2s ease-in-out forwards",
       },
       keyframes: {
         "loop-scroll": {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
+        },
+        positionUp: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-30%)" },
+        },
+        "dropdown-grow": {
+          "0%": {
+            transform: "scale(0)",
+            transformOrigin: "top right",
+            opacity: "0",
+          },
+          "100%": {
+            transform: "scale(1)",
+            transformOrigin: "top right",
+            opacity: "1",
+          },
         },
       },
       backgroundImage: {
@@ -25,6 +54,7 @@ const config: Config = {
       boxShadow: {
         "check-radio-border": "0 0 0 1px #3F3F3F",
         "default-radio-border": "0 0 0 1px #D1D1D1",
+        "custom-shadow": "4px 4px 24px 0px rgba(0, 0, 0, 0.04)",
       },
     },
     screens: {

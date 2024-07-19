@@ -1,15 +1,14 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import shareIcon from "@/public/icons/share.svg";
 import { commentQueryKeys } from "@/app/_queryFactory/commentQuery";
 import useToggleHook from "@/app/_hooks/useToggleHook";
 import CommentProfile from "../../../_components/Comment/CommentProfile";
 import EnterRating from "../../../_components/Comment/EnterRating";
 import EnterCommentProvider from "../../../_context/EnterCommentProvider";
 import EnterText from "../../../_components/Comment/EnterText";
+import SocialDropBox from "../../../_components/SocialDropBox/SocialDropBox";
 import RatingBox from "./RatingBox";
 import CommentDropbox from "./CommentDropbox";
 import DetailLoading from "./DetailLoading";
@@ -22,9 +21,13 @@ interface CommentSectionProps {
 
 function CommentSection({ projectId, ratingId }: CommentSectionProps) {
   const { isOpen: commentEditOpen, toggleState } = useToggleHook();
-  const { data: commentDetailData } = useQuery(commentQueryKeys.detail(ratingId));
+  const { data: commentDetailData, isPending } = useQuery(commentQueryKeys.detail(ratingId));
 
   if (!commentDetailData) {
+    return <p>데이터를 가져오는데 실패했습니다. 죄송합니다.</p>;
+  }
+
+  if (isPending) {
     return <DetailLoading />;
   }
 
@@ -54,7 +57,7 @@ function CommentSection({ projectId, ratingId }: CommentSectionProps) {
             userProfileImageUrl={commentDetailData.authorProfileImageUrl}
           />
           <div className="relative flex items-center gap-2">
-            <Image className="cursor-pointer" src={shareIcon} alt="공유하기." width={24} />
+            <SocialDropBox projectId={projectId} />
             <CommentDropbox toggleState={toggleState} ratingId={ratingId} projectId={projectId} />
           </div>
         </div>

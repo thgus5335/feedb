@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentApi } from "@/app/_apis/comment";
 import Button from "@/app/_components/Button/Button";
+import { useToast } from "@/app/_context/ToastContext";
 import { useEnterCommentContext } from "../../../_context/EnterCommentProvider";
 
 interface Props {
@@ -12,10 +13,11 @@ interface Props {
 
 function CommentEditButton({ ratingId, onClick }: Props) {
   const { rating, comment } = useEnterCommentContext();
+  const { addToast } = useToast();
+
   const queryClient = useQueryClient();
 
   const editCommentData = {
-    projectRatingId: ratingId,
     ideaRank: rating[0],
     designRank: rating[1],
     functionRank: rating[2],
@@ -29,8 +31,13 @@ function CommentEditButton({ ratingId, onClick }: Props) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["comment", "commentData", ratingId],
+        queryKey: ["comment", "detail", "commentData", ratingId],
       });
+      addToast("프로젝트 리뷰가 수정되었습니다", "success");
+    },
+    onError: error => {
+      console.error("Error:", error);
+      addToast("리뷰 수정 오류가 발생했습니다.", "error");
     },
   });
 
