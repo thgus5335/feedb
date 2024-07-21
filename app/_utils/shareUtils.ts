@@ -1,9 +1,14 @@
 import { projectApi } from "../_apis/project";
 
-const url: string = window.location.href;
+const BASE_URL = "https://feedb.vercel.app";
 
 export const copyLink = async () => {
-  await navigator.clipboard.writeText(url);
+  if (typeof window !== "undefined") {
+    const url: string = window.location.href;
+    await navigator.clipboard.writeText(url);
+  } else {
+    console.error("window is not defined");
+  }
 };
 
 // Kakao
@@ -28,8 +33,8 @@ export const shareKakao = async (projectId: number) => {
         description: result.introductions,
         imageUrl: result.thumbnailUrl,
         link: {
-          mobileWebUrl: "https://feedb.vercel.app",
-          webUrl: "https://feedb.vercel.app",
+          mobileWebUrl: BASE_URL,
+          webUrl: BASE_URL,
         },
       },
       itemContent: {
@@ -42,8 +47,8 @@ export const shareKakao = async (projectId: number) => {
         {
           title: "자세히 보기",
           link: {
-            mobileWebUrl: `https://feedb.vercel.app/project/${projectId}`,
-            webUrl: `https://feedb.vercel.app/project/${projectId}`,
+            mobileWebUrl: BASE_URL + `/project/${projectId}`,
+            webUrl: BASE_URL + `/project/${projectId}`,
           },
         },
       ],
