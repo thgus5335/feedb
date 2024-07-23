@@ -8,10 +8,19 @@ import SelectSkillStack from "./SelectSkillStack";
 
 interface SkillStackSectionProps {
   handleTechStackInput: (stackList: string[]) => void;
+  initialStackList?: string[];
 }
 
-function SkillStackSection({ handleTechStackInput }: SkillStackSectionProps) {
-  const { selectedStacks } = useGetSkillStack();
+function SkillStackSection({ handleTechStackInput, initialStackList }: SkillStackSectionProps) {
+  const { selectedStacks, isAddStack } = useGetSkillStack();
+
+  useEffect(() => {
+    if (initialStackList && initialStackList.length > 0) {
+      initialStackList.forEach(stack => {
+        isAddStack(stack);
+      });
+    }
+  }, [initialStackList, isAddStack]);
 
   useEffect(() => {
     handleTechStackInput(selectedStacks);
