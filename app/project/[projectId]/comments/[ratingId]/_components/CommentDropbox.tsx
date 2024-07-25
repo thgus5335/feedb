@@ -10,6 +10,8 @@ import DropDown from "@/app/_components/DropDown/DropDown";
 import useOutsideClick from "@/app/_hooks/useOutsideClick";
 import { commentApi } from "@/app/_apis/comment";
 import { useToast } from "@/app/_context/ToastContext";
+import { commentQueryKeys } from "@/app/_queryFactory/commentQuery";
+import { revalidateTagAction } from "@/app/_utils/revalidationAction";
 
 interface CommentDropboxProps {
   toggleState: () => void;
@@ -35,10 +37,10 @@ function CommentDropbox({ toggleState: editToggle, ratingId, projectId }: Commen
     },
     onSuccess: () => {
       queryClient.removeQueries({
-        queryKey: ["comment", "detail", "commentData", ratingId],
+        queryKey: commentQueryKeys.detail(ratingId).queryKey,
       });
-
       addToast("프로젝트 리뷰가 삭제되었습니다", "error");
+      revalidateTagAction("commentDetail");
     },
     onError: error => {
       console.error("Error:", error);

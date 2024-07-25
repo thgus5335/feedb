@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import ProjectList from "@/app/_components/ProjectList/ProjectList";
 import { useIntersectionObserver } from "@/app/_hooks/useIntersectionObserver";
@@ -9,14 +9,15 @@ import { projectQueryKeys } from "@/app/_queryFactory/projectQuery";
 import { useGetStack } from "../../_context/StackProvider";
 
 function ProjectSection() {
-  const { projectState } = useGetStack();
   const { targetRef: lastCardInfo, isVisible } = useIntersectionObserver<HTMLDivElement>({ threshold: 1 });
 
+  const { projectState } = useGetStack();
   const projectListQuery = projectQueryKeys.list({ page: 1, size: 16 });
 
-  const { data, fetchNextPage } = useInfiniteQuery({
+  const { data, fetchNextPage } = useSuspenseInfiniteQuery({
     queryKey: projectListQuery.queryKey,
     queryFn: ({ pageParam = 1 }) => projectApi.getProjectList({ ...projectState, page: pageParam }),
+
     initialPageParam: 1,
     getNextPageParam: lastPage => {
       const { customPageable } = lastPage;
@@ -33,10 +34,6 @@ function ProjectSection() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible]);
-
-  if (!data) {
-    return <section className="col-start-2 mt-10">로딩 중...</section>;
-  }
 
   return (
     <section className="col-start-2 mt-10">

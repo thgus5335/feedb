@@ -27,9 +27,11 @@ export const projectApi = {
         size,
         limit,
       },
-      HEADER.applicationHeaders
+      HEADER.applicationHeaders,
+      ["pojectList"]
     );
   },
+
   getProject: async (projectId: number) => {
     return await httpClient().get<ProjectResponse>(`/projects/${projectId}`, {}, HEADER.headers);
   },
@@ -41,5 +43,8 @@ export const projectApi = {
   },
   deleteProject: async (projectId: number) => {
     return await httpClient().delete(`/projects/${projectId}`, HEADER.headers);
+  },
+  postProjectView: async (projectId: number) => {
+    return await httpClient().post(`/${projectId}/views`, {}, HEADER.headers);
   },
 };
