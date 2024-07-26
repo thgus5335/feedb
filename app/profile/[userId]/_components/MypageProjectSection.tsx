@@ -4,6 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import ProjectList from "@/app/_components/ProjectList/ProjectList";
 import { useIntersectionObserver } from "@/app/_hooks/useIntersectionObserver";
 import { projectListAPI } from "@/app/_apis/projectListAPI";
+import { profileProjectListKeys } from "@/app/_queryFactory/projectListQuery";
 import { MY_PAGE_TEXT } from "./constant";
 
 export type MyPageProjectListType = "myProject" | "wishProject";
@@ -18,10 +19,12 @@ function MypageProjectSection({
   userId: number;
 }) {
   const { targetRef: lastCardRef, isVisible } = useIntersectionObserver<HTMLDivElement>({ threshold: 1 });
-  const { data, fetchNextPage, isPending } = useInfiniteQuery({
-    queryKey: ["projectList", projectType],
+  const projectListQuery = profileProjectListKeys.profileList({ userId: userId }, projectType);
+
+  const { data, fetchNextPage } = useInfiniteQuery({
+    queryKey: projectListQuery.queryKey,
     queryFn: ({ pageParam = 1 }) =>
-      projectListAPI.getMyProjectList({ page: pageParam as number, size: 8, userId: userId }, projectType),
+      projectListAPI.getMyProjectList({ page: pageParam, size: 16, userId: userId }, projectType),
     initialPageParam: 1,
     getNextPageParam: lastPage => {
       const { customPageable } = lastPage;
@@ -53,7 +56,7 @@ function MypageProjectSection({
         {listTitle(isMyPage, projectType)}
         <span className="ml-2.5">({data?.pages[0].customPageable.totalElements})</span>
       </h3>
-      <ProjectList projectList={data?.pages} lastRef={lastCardRef} isPending={isPending} />
+      <ProjectList projectList={data?.pages} lastRef={lastCardRef} />
     </section>
   );
 }
