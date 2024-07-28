@@ -1,8 +1,10 @@
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import naverIcon from "@/public/icons/naver.svg";
 import kakaoIcon from "@/public/icons/kakao.png";
 import feedbee from "@/public/icons/feedbee.svg";
 import logoTextIcon from "@/public/icons/logoText.svg";
+import { useLogin } from "@/app/_context/LoginProvider";
 import Button from "../Button/Button";
 import Modal from "../Modal/Modal";
 
@@ -11,6 +13,10 @@ interface LoginModalProps {
   handleModalClose: () => void;
 }
 function LoginModal({ openModal, handleModalClose }: LoginModalProps) {
+  const pathName = usePathname();
+
+  const { setUrl } = useLogin();
+
   if (!openModal) {
     return null;
   }
@@ -20,10 +26,14 @@ function LoginModal({ openModal, handleModalClose }: LoginModalProps) {
 
   const handleNaverLogin = () => {
     window.location.href = NAVER_OAUTH_URL;
+    setUrl(pathName);
+    handleModalClose();
   };
 
   const handleKakaoLogin = () => {
     window.location.href = KAKAO_OAUTH_URL;
+    setUrl(pathName);
+    handleModalClose();
   };
 
   return (
