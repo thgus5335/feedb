@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: "FeedB",
     images: [
       {
-        url: "/images/openGraph.svg",
+        url: "/images/openGraph..png",
         width: 1920,
         height: 1080,
       },
@@ -37,6 +37,8 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <meta name="google-site-verification" content="FSXKlC8L2fC87G2HeDdxtnQyzDlOM4C3Y1eYoq3mzVA" />
+        <meta name="naver-site-verification" content="6a3b830c55bbf7e49d2df7be3a9440cbae79d570" />
         <Script src="https://developers.kakao.com/sdk/js/kakao.js" strategy="beforeInteractive" />
       </head>
       <body>
