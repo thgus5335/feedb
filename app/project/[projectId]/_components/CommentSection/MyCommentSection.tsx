@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useCheckLogin from "@/app/_hooks/useCheckLogin";
-import { commentApi } from "@/app/_apis/comment";
+import { commentQueryKeys } from "@/app/_queryFactory/commentQuery";
 import MyCommentProvider from "../../_context/MyCommentProvider";
 import { useMyCommentContext } from "../../_context/MyCommentProvider";
 import ShowComment from "./MyComment/ShowComment";
@@ -18,14 +18,20 @@ const CommentContainer = ({ projectId }: Props) => {
   const { view, setView } = useMyCommentContext();
   const { isLoggedIn } = useCheckLogin();
 
+  const commentQuery = commentQueryKeys.myComment(projectId);
+
   const { data: myComment } = useQuery({
-    queryKey: ["myComment"],
-    queryFn: () => commentApi.getMyComment(projectId),
+    queryKey: commentQuery.queryKey,
+    queryFn: commentQuery.queryFn,
     enabled: !!isLoggedIn,
   });
 
+  useEffect(() => {
+    if (myComment && myComment.exists && view !== "edit") setView("show");
+    if (myComment && !myComment.exists && view !== "edit") setView("write");
+  }, [view, setView, myComment]);
+
   if (!myComment) return <WriteComment projectId={projectId} />;
-  if (myComment && myComment.exists) setView("show");
 
   return (
     <section>

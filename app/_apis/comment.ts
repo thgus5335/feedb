@@ -2,89 +2,108 @@ import { HEADER } from "../_constants/HeaderToken";
 import httpClient from "./httpClient";
 import {
   CommentDetailResponse,
-  CommentsListResponse,
+  CommentListResponse,
   MyCommentResponse,
   ReflyCommentResponse,
 } from "./schema/commentResponse";
 
-interface CommentsListRequest {
-  projectId: number;
+interface CommentListRequest {
+  projectId?: number;
   page?: number;
   size?: number;
 }
 
-interface UpadateCommentRequest {
+interface UploadCommentRequest {
+  ideaRank: number;
+  designRank: number;
+  functionRank: number;
+  completionRank: number;
   comment: string;
-  projectRatingUpdateRequest: {
-    projectRatingId: number;
-    ideaRank: number;
-    designRank: number;
-    functionRank: number;
-    completionRank: number;
-    commentUpdateRequest: string;
-  };
 }
 
-interface ReflyCommentListRequest extends CommentsListRequest {
-  commentId: number;
+interface UpadateCommentRequest {
+  ideaRank: number;
+  designRank: number;
+  functionRank: number;
+  completionRank: number;
+  comment: string;
+}
+
+interface ReflyCommentListRequest extends CommentListRequest {
+  ratingId: number;
 }
 
 export const commentApi = {
-  getCommentList: async ({ projectId, page = 1, size = 10 }: CommentsListRequest) => {
-    return await httpClient().get<CommentsListResponse>(
-      `/projects/${projectId}/comments`,
-      { page, size },
-      HEADER.headers
-    );
-  },
-  getCommentDetail: async (projectId: number, commentId: number) => {
-    return await httpClient().get<CommentDetailResponse>(`/projects/${projectId}/comments/${commentId}`);
-  },
-  getReflyCommentList: async ({ projectId, commentId, page = 1, size = 10 }: ReflyCommentListRequest) => {
-    return await httpClient().get<ReflyCommentResponse>(
-      `/projects/${projectId}/comments/${commentId}/replies`,
+  getCommentList: async ({ projectId, page = 1, size = 8 }: CommentListRequest) => {
+    return await httpClient().get<CommentListResponse>(
+      `/projects/${projectId}/ratings`,
       {
         page,
         size,
       },
-      HEADER.applicationHeaders
+      HEADER.headers
+    );
+  },
+  getCommentDetail: async (ratingId: number) => {
+    return await httpClient().get<CommentDetailResponse>(`/projects/ratings/${ratingId}`, {}, HEADER.headers, [
+      "commentDetail",
+    ]);
+  },
+  getReflyCommentList: async ({ ratingId, page = 1, size = 10 }: ReflyCommentListRequest) => {
+    return await httpClient().get<ReflyCommentResponse>(
+      `/projects/${ratingId}/comments`,
+      {
+        page,
+        size,
+      },
+      HEADER.applicationHeaders,
+      ["reflyCommentList"]
     );
   },
   getMyComment: async (projectId: number) => {
-    return await httpClient().get<MyCommentResponse>(`/projects/${projectId}/comments/mine`, {}, HEADER.headers);
+    return await httpClient().get<MyCommentResponse>(`/projects/${projectId}/ratings/mine`, {}, HEADER.headers);
   },
-  postComment: async (projectId: number, rankList: number[], comment: string) => {
+  postComment: async (projectId: number, data: UploadCommentRequest) => {
     return await httpClient().postData(
-      `/projects/${projectId}/comments`,
+      `/projects/${projectId}/ratings`,
       {
-        ideaRank: rankList[0],
-        designRank: rankList[1],
-        functionRank: rankList[2],
-        completionRank: rankList[3],
-        comment: comment,
+        ...data,
       },
       HEADER.applicationHeaders
     );
   },
-  postReflyComment: async (projectId: number, commentId: number, comment: string) => {
+  postReflyComment: async (ratingId: number | undefined, comment: string) => {
     return await httpClient().post(
-      `/projects/${projectId}/comments/replies`,
+      `/projects/${ratingId}/comments`,
       {
-        parentId: commentId,
+        parentId: 0,
         comment: comment,
       },
       HEADER.applicationHeaders
     );
   },
-  putComment: async (commentId: number, data: UpadateCommentRequest) => {
-    return await httpClient().put(`/projects/${commentId}`, {
-      data,
-    });
+  putComment: async (ratingId: number, data: UpadateCommentRequest) => {
+    return await httpClient().put(
+      `/projects/ratings/${ratingId}`,
+      {
+        ...data,
+      },
+      HEADER.applicationHeaders
+    );
   },
-  deleteComment: async (commentId: number) => {
-    return await httpClient().delete(`/projects/comments/${commentId}`, HEADER.applicationHeaders);
+  putReflyComment: async (commentId: number | undefined, comment: string) => {
+    return await httpClient().put(
+      `/projects/comments/${commentId}`,
+      {
+        comment: comment,
+      },
+      HEADER.applicationHeaders
+    );
+  },
+  deleteComment: async (ratingId: number) => {
+    return await httpClient().delete(`/projects/ratings/${ratingId}`, HEADER.applicationHeaders);
   },
   deleteReflyComment: async (reflyId: number) => {
-    return await httpClient().delete(`/projects/comments/replies/${reflyId}`, HEADER.applicationHeaders);
+    return await httpClient().delete(`/projects/comments/${reflyId}`, HEADER.applicationHeaders);
   },
 };

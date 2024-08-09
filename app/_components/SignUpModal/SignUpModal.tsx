@@ -1,6 +1,4 @@
-import Image from "next/image";
 import { useState } from "react";
-import logoTextIcon from "@/public/icons/logoText.svg";
 import Modal from "../Modal/Modal";
 import SignUpForm from "./SignUpForm";
 
@@ -26,12 +24,8 @@ function SignUpModal({ openModal, handleModalClose, dataType }: SignUpModalProps
     <Modal
       openModal={openModal}
       handleModalClose={handleModalCloseWidthReset}
-      className="max-h-[771px] px-[102px] pb-12 pt-[100px]">
-      <div className="flex flex-col items-center">
-        <div className="mb-[87px]">
-          <Image src={logoTextIcon} width={180} alt="로고 텍스트" />
-        </div>
-
+      className="max-h-[612px] w-[432px] p-6 mb:w-[360px]">
+      <div>
         <SignUpForm item={item} dataType={dataType} setItem={setItem} handleModalClose={handleModalClose} />
       </div>
     </Modal>

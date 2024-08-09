@@ -15,9 +15,10 @@ interface DropDownProps {
   dataType: string;
   inputWidth?: string;
   handleInputChange?: (value: string) => void;
+  initialDropDownValue?: string;
 }
 
-function DropDownBox({ dataType, inputWidth, handleInputChange }: DropDownProps) {
+function DropDownBox({ dataType, inputWidth, handleInputChange, initialDropDownValue }: DropDownProps) {
   const toolData = TOOL_DATA.reduce(
     (acc, { name }) => {
       acc[name] = name;
@@ -35,7 +36,14 @@ function DropDownBox({ dataType, inputWidth, handleInputChange }: DropDownProps)
 
   const { isOpen, toggleState } = useToggleHook();
 
-  const [item, setItem] = useState(dataType === "job" ? "직무" : "플랫폼");
+  const getInitialItem = () => {
+    if (initialDropDownValue) {
+      return dataType === "job" ? JOB_CATEGORIES_KR[initialDropDownValue] || "직무" : initialDropDownValue;
+    }
+    return dataType === "job" ? "직무" : "플랫폼";
+  };
+
+  const [item, setItem] = useState(getInitialItem());
 
   const itemRef = useRef<HTMLDivElement>(null);
   const exceptionRef = useRef<HTMLDivElement>(null);
@@ -52,9 +60,11 @@ function DropDownBox({ dataType, inputWidth, handleInputChange }: DropDownProps)
   return (
     <div className="relative">
       <div
-        className={`flex h-11 ${inputWidth ? inputWidth : "w-[118px]"} items-center justify-between gap-2 rounded-lg border border-solid border-gray-200 p-2 text-sm font-normal text-gray-900`}>
+        className={`flex h-11 ${inputWidth ? inputWidth : "w-[118px]"} cursor-pointer items-center justify-between gap-2 rounded-lg border border-solid border-gray-200 p-2 text-sm font-normal text-gray-900`}
+        onClick={toggleState}
+        ref={exceptionRef}>
         {item}
-        <div className="h-5 w-5 cursor-pointer" onClick={toggleState} ref={exceptionRef}>
+        <div className="h-5 w-5 cursor-pointer">
           {isOpen ? (
             <Image src={smallTopArrowIcon} alt="드롭다운 열기" width={20} height={20} priority />
           ) : (

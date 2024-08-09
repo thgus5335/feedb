@@ -2,14 +2,16 @@
 
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { UseFormRegisterReturn } from "react-hook-form";
 import Button from "@/app/_components/Button/Button";
 
 interface ThumbnailBoxProps {
   setThumbnail: (file: File) => void;
+  register?: UseFormRegisterReturn;
   initialUrl?: string;
 }
 
-function ThumbnailBox({ setThumbnail, initialUrl }: ThumbnailBoxProps) {
+function ThumbnailBox({ setThumbnail, register, initialUrl }: ThumbnailBoxProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showImageUrl, setShowImageUrl] = useState<string | null | undefined>(initialUrl);
 
@@ -44,6 +46,7 @@ function ThumbnailBox({ setThumbnail, initialUrl }: ThumbnailBoxProps) {
               className="rounded-xl object-contain"
               src={showImageUrl}
               alt="썸네일 이미지"
+              priority
             />
             <div className="absolute inset-0 bg-gray-200 opacity-0 transition-opacity duration-300 group-hover:opacity-50" />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -58,7 +61,14 @@ function ThumbnailBox({ setThumbnail, initialUrl }: ThumbnailBoxProps) {
           </Button>
         )}
       </div>
-      <input type="file" id="fileInput" ref={fileInputRef} className="hidden" onChange={handleImageChange} />
+      <input
+        {...register}
+        type="file"
+        id="fileInput"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleImageChange}
+      />
     </div>
   );
 }

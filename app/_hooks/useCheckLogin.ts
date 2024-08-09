@@ -1,28 +1,35 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useLogin } from "../_context/LoginProvider";
-import { getToken, removeToken } from "../_utils/handleToken";
+import { checkTokenExpiry, getToken, removeRedirectUrl, removeToken } from "../_utils/handleToken";
 
 const useCheckLogin = () => {
-  const { type, setType } = useLogin();
+  const router = useRouter();
+  const { type, setType, token } = useLogin();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = getToken();
-    if (token && token.accessToken) {
+    const accessToken = getToken();
+    if (token || (accessToken && accessToken.accessToken)) {
       setIsLoggedIn(true);
     } else {
-      setIsLoggedIn(false); // 로그인 상태 없을 때 업데이트
+      setIsLoggedIn(false);
     }
-  }, [setType]);
+  }, [token, setIsLoggedIn]);
+
+  useEffect(() => {
+    checkTokenExpiry();
+  });
 
   const handleLogout = () => {
     removeToken();
     setType("");
     setIsLoggedIn(false);
-    window.location.reload();
+    removeRedirectUrl();
+    router.push("/main");
   };
 
-  return { type, setType, isLoggedIn, handleLogout };
+  return { type, setType, isLoggedIn, handleLogout, setIsLoggedIn };
 };
 
 export default useCheckLogin;

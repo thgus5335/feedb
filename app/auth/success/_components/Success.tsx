@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { setToken } from "@/app/_utils/handleToken";
+import { getRedirectUrl, setToken as setLocalStorageToken } from "@/app/_utils/handleToken";
 import LoadingWrapper from "@/app/_components/LoadingWrapper/LoadingWrapper";
 import { useLogin } from "@/app/_context/LoginProvider";
 
@@ -17,7 +17,7 @@ export default function Success() {
 
 function SuccessContent({ router }: any) {
   const searchParams = useSearchParams();
-  const { setEmail, setType } = useLogin();
+  const { setEmail, setType, setToken } = useLogin();
 
   useEffect(() => {
     const typeQuery = searchParams.get("type");
@@ -32,17 +32,22 @@ function SuccessContent({ router }: any) {
       setType(typeQuery);
     }
 
-    console.log(typeQuery);
-
     // 토큰이 있으면 로컬스토리지에 저장
     if (tokenQuery) {
       const accessToken = tokenQuery;
+      // 토큰을 전역으로 관리
       setToken(accessToken);
+      setLocalStorageToken(accessToken);
+      const timestamp = Date.now();
+      localStorage.setItem("tokenTimestamp", timestamp.toString());
     }
 
+    const redirectUrl = getRedirectUrl();
+
     if (typeQuery === "signUp" || typeQuery === "login") {
-      router.push("/main");
+      router.push(redirectUrl);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, searchParams, setEmail, setType]);
 
   return <></>;

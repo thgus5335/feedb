@@ -1,13 +1,11 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { MyCommentResponse } from "@/app/_apis/schema/commentResponse";
-import { projectQueryKeys } from "@/app/_queryFactory/projectQuery";
 import ToolTip from "../../Comment/ToolTip";
 import EnterRating from "../../Comment/EnterRating";
 import EnterCommentProvider from "../../../_context/EnterCommentProvider";
 import EnterText from "../../Comment/EnterText";
-import EnterButton from "../../Comment/EnterButton";
+import EditButton from "../../Comment/EditButton";
 import { useMyCommentContext } from "../../../_context/MyCommentProvider";
 
 interface Props {
@@ -17,21 +15,17 @@ interface Props {
 
 function EditComment({ projectId, myComment }: Props) {
   const { setView } = useMyCommentContext();
-  const { data: ratingsData } = useQuery(
-    projectQueryKeys.ratings(projectId, Number(myComment.projectCommentResponseDto?.authorId))
-  );
 
-  if (!ratingsData) return null;
-
-  const transformedData = [
-    ratingsData.ideaRank,
-    ratingsData.designRank,
-    ratingsData.functionRank,
-    ratingsData.completionRank,
+  const getRatingData = [
+    myComment.projectRating.ideaRank,
+    myComment.projectRating.designRank,
+    myComment.projectRating.functionRank,
+    myComment.projectRating.completionRank,
   ];
 
-  if (!myComment.projectCommentResponseDto) return null;
-  const { comment } = myComment.projectCommentResponseDto;
+  const { comment: getCommentData, ratingId } = myComment.projectRating;
+
+  if (!myComment.projectRating) return null;
 
   return (
     <div className="relative flex flex-col rounded-xl border border-solid border-gray-300 bg-gray-100 p-6">
@@ -41,9 +35,9 @@ function EditComment({ projectId, myComment }: Props) {
       </div>
       <div className="flex flex-col gap-6">
         <EnterCommentProvider>
-          <EnterRating ratingValue={transformedData} />
-          <EnterText commentValue={comment} />
-          <EnterButton projectId={projectId} mode="edit" onClick={() => setView("show")} />
+          <EnterRating ratingValue={getRatingData} />
+          <EnterText commentValue={getCommentData} />
+          <EditButton projectId={projectId} ratingId={ratingId} showComment={() => setView("show")} />
         </EnterCommentProvider>
       </div>
     </div>

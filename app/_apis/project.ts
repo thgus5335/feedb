@@ -6,7 +6,6 @@ import {
   ProjectResponseType,
   TeamMemberResponse,
   TotalRatingResponse,
-  RatingsResponse,
 } from "./schema/projectResponse";
 
 export const projectApi = {
@@ -28,22 +27,24 @@ export const projectApi = {
         size,
         limit,
       },
-      HEADER.applicationHeaders
+      HEADER.applicationHeaders,
+      ["pojectList"]
     );
   },
+
   getProject: async (projectId: number) => {
     return await httpClient().get<ProjectResponse>(`/projects/${projectId}`, {}, HEADER.headers);
   },
   getTeamMember: async (projectId: number) => {
     return await httpClient().get<TeamMemberResponse>(`/projects/${projectId}/teammates`);
   },
-  getRatings: async (projectId: number, userId: number) => {
-    return await httpClient().get<RatingsResponse>(`/projects/${projectId}/ratings/${userId}`);
-  },
   getTotalRating: async (projectId: number) => {
     return await httpClient().get<TotalRatingResponse>(`/projects/${projectId}/average-rating`);
   },
   deleteProject: async (projectId: number) => {
     return await httpClient().delete(`/projects/${projectId}`, HEADER.headers);
+  },
+  postProjectView: async (projectId: number) => {
+    return await httpClient().postData(`/${projectId}/views`, {}, HEADER.headers);
   },
 };

@@ -4,10 +4,12 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 import Resizer from "react-image-file-resizer";
+import { UseFormRegisterReturn } from "react-hook-form";
 import whitePlusIcon from "@/public/icons/whitePlus.svg";
 import EmptyProjectImage from "@/app/addproject/_components/ProjectImageBox/EmptyProjectImage";
 import ProjectImageCard from "@/app/addproject/_components/ProjectImageBox/ProjectImageCard";
 import RadioButton from "@/app/addproject/_components/RadioButton";
+import { useToast } from "@/app/_context/ToastContext";
 
 interface ImageType {
   id: string;
@@ -17,9 +19,10 @@ interface ImageType {
 
 interface ProjectImageBoxProps {
   setImageType: (image: string) => void;
-  handleImageFile: (fileList: File[]) => void;
+  handleImageFile: (fileList: any[]) => void;
   initialImageType?: string;
   initialUrlList?: string[];
+  register?: UseFormRegisterReturn;
 }
 
 function ProjectImageBox({
@@ -27,30 +30,35 @@ function ProjectImageBox({
   handleImageFile,
   initialImageType = "",
   initialUrlList = [],
+  register,
 }: ProjectImageBoxProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [selectedSize, setSelectedSize] = useState((initialImageType && initialImageType) || "웹");
+  const [selectedSize, setSelectedSize] = useState(initialImageType || "웹");
   const [showImageUrlList, setShowImageUrlList] = useState<ImageType[]>([]);
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (initialUrlList.length > 0) {
       const urlList = initialUrlList.map(url => ({
-        id: url,
+        id: `${url}-${Math.random()}`,
         url: url,
       }));
       setShowImageUrlList(urlList);
     }
   }, [initialUrlList]);
 
+  useEffect(() => {
+    setSelectedSize(initialImageType || "웹");
+  }, [initialImageType]);
+
   const resizeFile = (file: Blob): Promise<File> =>
     new Promise((resolve, reject) => {
       Resizer.imageFileResizer(
         file,
-        300,
-        300,
+        1000,
+        1000,
         "JPEG",
-        100,
+        80,
         0,
         uri => {
           if (typeof uri === "string") {
@@ -84,9 +92,15 @@ function ProjectImageBox({
   };
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const MAX_FILE_NUMBER = 5; // 최대 이미지 수
     const fileList = event.target.files;
 
     if (fileList) {
+      if (showImageUrlList.length + fileList.length > MAX_FILE_NUMBER) {
+        addToast("이미지는 최대 5장까지만 업로드할 수 있습니다", "error");
+        return;
+      }
+
       const resizedImageList = await Promise.all(
         Array.from(fileList).map(async file => {
           const resizedFile = await resizeFile(file);
@@ -98,10 +112,7 @@ function ProjectImageBox({
         })
       );
 
-      setShowImageUrlList(prevImages => {
-        const newImageList = [...prevImages, ...resizedImageList];
-        return newImageList.slice(0, 5); // 이미지는 최대 5개까지만 허용
-      });
+      setShowImageUrlList(prevImages => [...prevImages, ...resizedImageList]);
 
       // 파일 입력 값을 리셋
       if (fileInputRef.current) {
@@ -123,21 +134,20 @@ function ProjectImageBox({
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const reorderedImages = Array.from(showImageUrlList);
-    const [removed] = reorderedImages.splice(result.source.index, 1);
-    reorderedImages.splice(result.destination.index, 0, removed);
+    const reorderedImageList = Array.from(showImageUrlList);
+    const [removed] = reorderedImageList.splice(result.source.index, 1);
+    reorderedImageList.splice(result.destination.index, 0, removed);
 
-    setShowImageUrlList(reorderedImages);
+    setShowImageUrlList(reorderedImageList);
   };
 
   useEffect(() => {
-    const filesArray: File[] = showImageUrlList.filter(image => image.file).map(image => image.file as File);
-    handleImageFile(filesArray);
+    handleImageFile(showImageUrlList);
   }, [showImageUrlList, handleImageFile]);
 
   return (
     <>
-      <div className="flex gap-3">
+      <div className="mb-4 flex gap-3">
         <RadioButton value="웹" checked={selectedSize === "웹"} onChange={handleSizeChange} />
         <RadioButton value="모바일" checked={selectedSize === "모바일"} onChange={handleSizeChange} />
       </div>
@@ -182,7 +192,15 @@ function ProjectImageBox({
           )}
         </Droppable>
       </DragDropContext>
-      <input type="file" id="fileInput" ref={fileInputRef} className="hidden" multiple onChange={handleImageChange} />
+      <input
+        {...register}
+        type="file"
+        id="fileInput"
+        ref={fileInputRef}
+        className="hidden"
+        multiple
+        onChange={handleImageChange}
+      />
     </>
   );
 }
